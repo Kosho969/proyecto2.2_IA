@@ -4,12 +4,15 @@ import numpy as np
 from gaussian import Gaussian
 import matplotlib.pyplot as plt
 import matplotlib
+from scipy.stats import multivariate_normal
 
 class Expectation_maximization():
 
     def __init__(self, data_set, k_values , max_iterations = None):
         self.pi_values = self.generate_pis(k_values)
+        self.gaussians = []
         self.execute_maximization(k_values, data_set, max_iterations)
+        self.data_set = data_set
 
     def execute_maximization(self, k_values, data_set, max_iterations):
         gaussians = [ Gaussian(self.generateMu(), self.generateSigma(), pi) for pi in self.pi_values]
@@ -20,7 +23,7 @@ class Expectation_maximization():
         for i in range(len(gaussians)):
             current_gaussians += gaussians[i].to_string()
 
-        self.plot_gaussians(gaussians)
+        #self.plot_gaussians(gaussians)
 
         current_iteration = 0
         print('Max: ' ,max_iterations)
@@ -66,7 +69,11 @@ class Expectation_maximization():
 
 
             current_iteration += 1
-        self.plot_gaussians(gaussians)
+        self.gaussians = gaussians
+        # for i in range(len(self.gaussians)):
+        #     print(self.gaussians[i].to_string())
+        self.plot_gaussians(gaussians, len(data_set))
+        # self.plot_gaussians2(gaussians, data_set)
 
 
     def generateMu(self):
@@ -84,10 +91,28 @@ class Expectation_maximization():
         pis.append(1-piCuts[-1])
         return pis
 
-    def plot_gaussians(self, gaussians):
+    def check_classify(self, point):
+        values = []
+        for gaussian in self.gaussians:
+            values.append(gaussian.pi * gaussian.probabilidad_no_normalizada(point))
+        return values
+
+    def plot_gaussians(self, gaussians, sample):
         figures = []
         for gaussian in gaussians:
-            figures.append(np.random.multivariate_normal([gaussian.mu[0,0], gaussian.mu[1,0]], gaussian.sigma, 10000))
+            figures.append(np.random.multivariate_normal([gaussian.mu[0,0], gaussian.mu[1,0]], gaussian.sigma, sample))
         for figure in figures:
-            plt.scatter(figure[:,0],figure[:,1],c='r',s=20,edgecolors='none')
+            plt.scatter(figure[:,0],figure[:,1],c='r',s=20,edgecolors='none', alpha=0.5)
+        plt.show()
+
+    def plot_gaussians2(self, gaussians, data_set):
+        figures = []
+        x, y = np.mgrid[-500:500:1, -500:500:1]
+        pos = np.dstack((x, y))
+        for gaussian in gaussians:
+            rv = multivariate_normal([gaussian.mu[0,0], gaussian.mu[1,0]], gaussian.sigma)
+            fig2 = plt.figure()
+            ax2 = fig2.add_subplot(111)
+            plt.contourf(x, y, rv.pdf(pos))
+            plt.plot(data_set[:,0], data_set[:,1], 'o', color='black');
         plt.show()
