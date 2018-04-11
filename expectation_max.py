@@ -77,13 +77,15 @@ class Expectation_maximization():
 
 
     def generateMu(self):
-        return np.array([[random.randint(-500, 500)], [random.randint(-500, 500)]])
+        return np.array([[random.randint(-10, 10)], [random.randint(-10, 10)]])
 
     def generateSigma(self):
         sigma = np.array([[1,0],[0,1]]) * random.random()
         return np.array(sigma)
 
     def generate_pis(self, k_values):
+        if (k_values == 1):
+            return [1]
         piCuts = sorted([random.random() for i in range(k_values - 1)])
         pis = [piCuts[0]]
         for i in range(1, len(piCuts)):
@@ -98,11 +100,14 @@ class Expectation_maximization():
         return values
 
     def plot_gaussians(self, gaussians, sample):
+        colors = ['r', 'maroon', 'yellowgreen', 'palegreen', 'b', 'pink', 'purple', 'olive']
+        counter = 0
         figures = []
         for gaussian in gaussians:
             figures.append(np.random.multivariate_normal([gaussian.mu[0,0], gaussian.mu[1,0]], gaussian.sigma, sample))
         for figure in figures:
-            plt.scatter(figure[:,0],figure[:,1],c='r',s=20,edgecolors='none', alpha=0.5)
+            plt.scatter(figure[:,0],figure[:,1],c=colors[counter],s=20,edgecolors='none', alpha=0.5)
+            counter += 1
         plt.show()
 
     def plot_gaussians2(self, gaussians, data_set):

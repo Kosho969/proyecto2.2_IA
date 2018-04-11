@@ -10,7 +10,7 @@ from gaussian import Gaussian
 
 data = []
 
-with open('generatedPoints.txt') as f:
+with open('test_gmm_4.txt') as f:
     for line in f: 
         # print(line, end='')
         value = line.split(' ')
@@ -30,8 +30,8 @@ data_set = np.asarray(data_set)
 
 plt.plot(data_set[:,0], data_set[:,1], 'o', color='black');
 
-
-expectation_object = Expectation_maximization(data_set, 3, 150)
+k_gaussians = int(input("Enter cluster quantity: "))
+expectation_object = Expectation_maximization(data_set, k_gaussians, 150)
 
 while (True):
     vector = input("Enter point: ")
